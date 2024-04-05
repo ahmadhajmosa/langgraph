@@ -122,7 +122,7 @@ class Graph:
         self.nodes[key] = runnable_node
         # Create a node in Neo4j
         # Assuming 'key' is a unique identifier for each node and 'action' has relevant properties
-        self.neo4j_service.create_node(key, {"type": runnable_node.__class__.__name__})
+        self.neo4j_service.create_node(key, {"type": runnable_node.__class__.__name__, "agent": action.keywords['agent'].dict()['agent']['runnable']['middle'][0]['messages'][0]})
 
     def add_edge(self, start_key: str, end_key: str) -> None:
         if self.compiled:
@@ -189,6 +189,11 @@ class Graph:
             )
         # save it
         self.branches[start_key][name] = Branch(condition, conditional_edge_mapping)
+        # Represent the condition in Neo4j
+        # This creates a special 'ConditionalEdge' relationship from the start node
+        # to a virtual node representing the condition, with properties describing the conditional mapping
+        condition_properties = {"mapping": conditional_edge_mapping or {}, "condition": str(condition)}
+        self.neo4j_service.create_conditional_relationship(start_key, name, condition_properties)
 
     def set_entry_point(self, key: str) -> None:
         return self.add_edge(START, key)
