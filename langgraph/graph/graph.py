@@ -124,7 +124,7 @@ class Graph:
         # Create a node in Neo4j
         # Assuming 'key' is a unique identifier for each node and 'action' has relevant properties
         if isinstance(action, RunnableSequence):
-            agent = supervisor_chain.dict()
+            agent = action.dict()
         else:
             agent = action.keywords['agent'].dict()['agent']['runnable']['middle'][0]['messages'][0]
         
