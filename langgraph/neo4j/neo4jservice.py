@@ -46,6 +46,9 @@ class Neo4jService:
 
     @staticmethod
     def _create_edge_tx(tx, start_node, end_node):
+        logger.warning(
+                f"""{start_node},{end_node}"""
+        )
         query = (
             "MATCH (a:Node), (b:Node) "
             "WHERE a.id = $start_node AND b.id = $end_node "
