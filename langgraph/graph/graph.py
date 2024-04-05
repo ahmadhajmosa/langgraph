@@ -13,8 +13,9 @@ from typing import (
 )
 
 from langchain_core.runnables import Runnable
-from langchain_core.runnables.base import RunnableLike, coerce_to_runnable
+from langchain_core.runnables.base import RunnableLike, coerce_to_runnable, RunnableSequence
 from langchain_core.runnables.config import RunnableConfig
+
 from langchain_core.runnables.graph import (
     Graph as RunnableGraph,
 )
@@ -122,7 +123,12 @@ class Graph:
         self.nodes[key] = runnable_node
         # Create a node in Neo4j
         # Assuming 'key' is a unique identifier for each node and 'action' has relevant properties
-        self.neo4j_service.create_node(key, {"type": runnable_node.__class__.__name__, "agent": action.keywords['agent'].dict()['agent']['runnable']['middle'][0]['messages'][0]})
+        if isinstance(action, RunnableSequence):
+            agent = supervisor_chain.dict()
+        else:
+            agent = action.keywords['agent'].dict()['agent']['runnable']['middle'][0]['messages'][0]
+        
+        self.neo4j_service.create_node(key, {"type": runnable_node.__class__.__name__, "agent": agent})
 
     def add_edge(self, start_key: str, end_key: str) -> None:
         if self.compiled:
