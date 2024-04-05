@@ -2,7 +2,7 @@ from neo4j import GraphDatabase
 import os
 import logging
 logger = logging.getLogger(__name__)
-
+import json
 class Neo4jService:
     def __init__(self):
         
@@ -30,8 +30,9 @@ class Neo4jService:
 
     @staticmethod
     def _create_node_tx(tx, node_id, properties):
+        serialized_properties = json.dumps(properties, default=str)
         query = (
-            "MERGE (n:Node {id: $node_id, properties: $properties}) "
+            "MERGE (n:Node {id: $node_id, properties: $serialized_properties}) "
         )
         logger.warning(
                 f"""MATCH (n:Node id: {node_id}, properties: {properties})"""
