@@ -30,6 +30,11 @@ from langgraph.pregel.read import PregelNode
 from langgraph.pregel.write import ChannelWrite
 from langgraph.utils import RunnableCallable
 
+
+from langgraph.neo4jservice import Neo4jService
+
+
+
 logger = logging.getLogger(__name__)
 
 START = "__start__"
@@ -96,6 +101,7 @@ class Graph:
         self.branches: defaultdict[str, dict[str, Branch]] = defaultdict(dict)
         self.support_multiple_edges = False
         self.compiled = False
+        self.neo4j_service = Neo4jService()
 
     @property
     def _all_edges(self) -> set[tuple[str, str]]:
@@ -112,7 +118,11 @@ class Graph:
         if key == END:
             raise ValueError(f"Node `{key}` is reserved.")
 
-        self.nodes[key] = coerce_to_runnable(action)
+        runnable_node = coerce_to_runnable(action)
+        self.nodes[key] = runnable_node
+        # Create a node in Neo4j
+        # Assuming 'key' is a unique identifier for each node and 'action' has relevant properties
+        self.neo4j_service.create_node(key, {"type": runnable_node.__class__.__name__})
 
     def add_edge(self, start_key: str, end_key: str) -> None:
         if self.compiled:
@@ -138,6 +148,9 @@ class Graph:
             )
 
         self.edges.add((start_key, end_key))
+
+        self.neo4j_service.create_edge(start_key, end_key)
+
 
     def add_conditional_edges(
         self,
