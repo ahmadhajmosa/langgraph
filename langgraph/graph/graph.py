@@ -146,7 +146,9 @@ class Graph:
                 f"Already found path for node '{start_key}'.\n"
                 "For multiple edges, use StateGraph with an annotated state key."
             )
-
+        logger.warning(
+                "Adding an edge to a neo4j "
+        )
         self.edges.add((start_key, end_key))
 
         self.neo4j_service.create_edge(start_key, end_key)
