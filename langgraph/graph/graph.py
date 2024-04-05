@@ -31,7 +31,7 @@ from langgraph.pregel.write import ChannelWrite
 from langgraph.utils import RunnableCallable
 
 
-from langgraph.neo4jservice import Neo4jService
+from langgraph.neo4j.neo4jservice import Neo4jService
 
 
 
