@@ -1,5 +1,8 @@
 from neo4j import GraphDatabase
 import os
+import logging
+logger = logging.getLogger(__name__)
+
 class Neo4jService:
     def __init__(self):
         
@@ -30,6 +33,9 @@ class Neo4jService:
         query = (
             "MATCH (n:Node {id: $node_id, properties: $properties}) "
             "RETURN n"
+        )
+        logger.warning(
+                f"query{query}"
         )
         return tx.run(query, node_id=node_id, properties=properties)
 
