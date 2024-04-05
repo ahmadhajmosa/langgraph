@@ -31,8 +31,7 @@ class Neo4jService:
     @staticmethod
     def _create_node_tx(tx, node_id, properties):
         query = (
-            "MATCH (n:Node {id: $node_id, properties: $properties}) "
-            "RETURN n"
+            "MERGE (n:Node {id: $node_id, properties: $properties}) "
         )
         logger.warning(
                 f"""MATCH (n:Node id: {node_id}, properties: {properties})"""
@@ -48,8 +47,20 @@ class Neo4jService:
         query = (
             "MATCH (a:Node), (b:Node) "
             "WHERE a.id = $start_node AND b.id = $end_node "
-            "CREATE (a)-[:CONNECTED_TO]->(b)"
+            "MERGE (a)-[:CONNECTED_TO]->(b)"
         )
         return tx.run(query, start_node=start_node, end_node=end_node)
 
 
+    def create_conditional_relationship(self, start_node, condition_name, properties):
+        with self.driver.session() as session:
+            session.write_transaction(self._create_conditional_relationship_tx, start_node, condition_name, properties)
+
+    @staticmethod
+    def _create_conditional_relationship_tx(tx, start_node, condition_name, properties):
+        query = (
+            "MATCH (start:Node {id: $start_node}) "
+            "MERGE (condition:Condition {name: $condition_name, properties: $properties}) "
+            "MERGE (start)-[:HAS_CONDITION]->(condition)"
+        )
+        return tx.run(query, start_node=start_node, condition_name=condition_name, properties=properties)
