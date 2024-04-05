@@ -33,11 +33,12 @@ class Neo4jService:
         serialized_properties = json.dumps(properties, default=str)
         query = (
             "MERGE (n:Node {id: $node_id, properties: $serialized_properties}) "
+
         )
         logger.warning(
                 f"""MATCH (n:Node id: {node_id}, properties: {properties})"""
         )
-        return tx.run(query, node_id=node_id, properties=properties)
+        return tx.run(query, node_id=node_id, serialized_properties=serialized_properties)
 
     def create_edge(self, start_node, end_node):
         with self.driver.session() as session:
