@@ -35,7 +35,7 @@ class Neo4jService:
             "RETURN n"
         )
         logger.warning(
-                f"query{query}"
+                f"query{query}", node_id, properties
         )
         return tx.run(query, node_id=node_id, properties=properties)
 
